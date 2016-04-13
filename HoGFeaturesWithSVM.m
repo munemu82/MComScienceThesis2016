@@ -4,7 +4,7 @@
 % imageSet recursively scans the directory tree containing the images.
 trainingSet = [ imageSet(fullfile('Kangaroo')), ...
             imageSet(fullfile('NotKangaroo'))];
-{trainingSet.Description } % display all labels on one line
+{trainingSet.Description }; % display all labels on one line
 [trainingSet.Count]         % show the corresponding count of image
 testSet =imageSet(fullfile('test'));
 
