@@ -67,7 +67,7 @@ for j=1:length(train_labels_cat)
         end
 end 
 %Extract Testing labels
-testSet = [ imageSet(fullfile('test'))]
+testSet = [ imageSet(fullfile(testFolder))]
 for i = 1:size(testSet,1)
         %category names
         test_labels_cat = vertcat(test_labels_cat,repelem({testSet(i).Description}',[testSet(i).Count],1));
