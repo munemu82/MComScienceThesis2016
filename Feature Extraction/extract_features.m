@@ -1,14 +1,15 @@
 %Feature extraction
+tic
 addpath(genpath('.'));
 info = load('images/filelist.mat');
 datasets = {'Kangaroo'}; 
 train_lists = {info.train_list};
 test_lists = {info.test_list};
-feature = 'color';              %set type of feature
+feature = 'hog3x3';              %set type of feature
 
 % Load the configuration and set dictionary size to 20 (for fast demo)
 c = conf();
-c.feature_config.(feature).dictionary_size=20;
+%c.feature_config.(feature).dictionary_size=20;
 
 % Compute train and test features
 datasets_feature(datasets, train_lists, test_lists, feature, c);
@@ -32,4 +33,5 @@ testFeaturesDataTable.label = info.test_labels_cat;
 for k=1:length(testFeaturesDataTable.Properties.VariableNames)
     testFeaturesDataTable.Properties.VariableNames{k}= strcat('train_features',num2str(k));
 end
+toc
 
