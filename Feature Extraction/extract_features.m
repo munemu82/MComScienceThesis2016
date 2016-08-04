@@ -5,11 +5,11 @@ info = load('images/filelist.mat');
 datasets = {'Kangaroo'}; 
 train_lists = {info.train_list};
 test_lists = {info.test_list};
-feature = 'hog3x3';              %set type of feature
+feature = 'sift';              %set type of feature
 
 % Load the configuration and set dictionary size to 20 (for fast demo)
 c = conf();
-%c.feature_config.(feature).dictionary_size=20;
+c.feature_config.(feature).dictionary_size=128;
 
 % Compute train and test features
 datasets_feature(datasets, train_lists, test_lists, feature, c);
@@ -25,13 +25,17 @@ trainingFeaturesDataTable.label = info.train_labels_cat;
 testFeaturesDataTable = array2table(test_features);
 testFeaturesDataTable.label = info.test_labels_cat;
 
-%For classifier to perform prediction on test or new data, the data need to
-%have same column names as the training data (i.e.
-%trainingFeaturesDataTable and testFeaturesDataTable need to have same
-%columns, to fix this I run the loop to modify column names in the test
 %features table.
-for k=1:length(testFeaturesDataTable.Properties.VariableNames)
-    testFeaturesDataTable.Properties.VariableNames{k}= strcat('train_features',num2str(k));
-end
+% for k=1:length(testFeaturesDataTable.Properties.VariableNames)
+%     testFeaturesDataTable.Properties.VariableNames{k}= strcat('train_features',num2str(k));
+% end
+%FEATURE TRANSFORMATION
+%compute transformed features - we use 1 / (1 + exp(x)) transformation
+transformed_train_features = 1 ./(1+exp(train_features));
+transformed_test_features = 1 ./(1+exp(test_features));
+%convert transformed features matrix into table
+transformedTrainingSet = array2table(transformed_train_features);
+trainingFeaturesDataTable.label = info.train_labels_cat;   %adding class label
+transformedTestSet = array2table(transformed_test_features);
 toc
 

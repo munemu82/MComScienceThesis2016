@@ -1,0 +1,110 @@
+%AUTHOR: Amos Munezero
+%This script is used to prepare images for feature extraction
+
+%Initial image folder setup
+trainFolder = 'images/trainTemp';
+testFolder = 'images/testTemp';
+
+%validate specified training and test folders if exit
+if ~isdir(trainFolder)
+  errorMessage = sprintf('Error: The following folder does not exist:\n%s', trainFolder);
+  uiwait(warndlg(errorMessage));
+  return;
+end
+if ~isdir(testFolder)
+  errorMessage = sprintf('Error: The following folder does not exist:\n%s', testFolder);
+  uiwait(warndlg(errorMessage));
+  return;
+end
+
+%extract images from folders 
+trainFilePattern = fullfile(trainFolder, '*.jpg');
+trainingImages = dir(trainFilePattern);
+testFilePattern = fullfile(testFolder, '*.png');
+testingImages = dir(testFilePattern);
+
+%Declare lists
+train_list = {};
+train_labels_cat = [];
+train_labels= [];
+test_list = {};
+test_labels_cat = [];
+test_labels = [];
+classes = {1,2};
+%Get all the image names from training and test image folders
+
+%extract and store training image names and path to the list
+for i = 1:length(trainingImages)
+  baseTrainImageName = trainingImages(i).name;
+  fullTrainImageName = fullfile(trainFolder, baseTrainImageName);
+  train_list{i} = fullTrainImageName;
+  
+  %Display training images
+  fprintf(1, 'Now reading %s\n', fullTrainImageName);
+  imageArray = imread(fullTrainImageName);
+  %Convert image into gray scale
+  fprintf(1, 'Now converting to grayscale %s\n', fullTrainImageName);
+  grayedImg = rgb2gray(imageArray);
+  %perform histogram equalization on grayed image
+  fprintf(1, 'Now perform histograming on equalization on %s\n', fullTrainImageName);
+  histEqImg = histeq(grayedImg);
+  %save training histogram equalized image into a training dataset folder
+  newFullTrainImageName = strrep(fullTrainImageName, 'trainTemp', 'train');
+  fprintf(1, 'Now saving histogrammed image %s\n',' to train folder');
+  imwrite(histEqImg,newFullTrainImageName);
+ %display image figure 
+  imshowpair(imageArray, histEqImg, 'montage'); % Display imageData preparation:.
+  drawnow; % Force display to update immediately.
+ end
+
+%extract and store testing image names and path to the list
+for j = 1:length(testingImages)
+  baseTestImageName = testingImages(j).name;
+  fullTestImageName = fullfile(testFolder, baseTestImageName);
+  test_list{j} = fullTestImageName;
+  %Display Test images
+  fprintf(1, 'Now reading %s\n', fullTestImageName);
+  testImgArray = imread(fullTestImageName);
+  %Convert image into gray scale
+  fprintf(1, 'Now converting to grayscale %s\n', fullTestImageName);
+  testGrayedImg = rgb2gray(testImgArray);
+  %perform histogram equalization on grayed image
+  fprintf(1, 'Now perform histograming on equalization on %s\n', fullTestImageName);
+  testHistEqImg = histeq(testGrayedImg);
+  
+  newFullTestImageName = strrep(fullTestImageName, 'testTemp', 'test');
+  imwrite(testHistEqImg,newFullTestImageName);
+   %display image figure 
+  imshowpair(testImgArray, testHistEqImg, 'montage'); % Display imageData preparation:.
+  drawnow; % Force display to update immediately.
+end 
+%Extract training labels
+imgSets = [ imageSet(fullfile('images/Kangaroo')), ...
+            imageSet(fullfile('images/NotKangaroo'))];
+for i = 1:size(imgSets,2)
+        %category names
+        train_labels_cat = vertcat(train_labels_cat,repelem({imgSets(i).Description}',[imgSets(i).Count],1));
+end
+for j=1:length(train_labels_cat)  
+        if j <= 4
+            train_labels{j} = 1;
+        else
+            train_labels{j} = 2;
+        end
+end 
+%Extract Testing labels
+testSet = [ imageSet(fullfile(testFolder))]
+for i = 1:size(testSet,1)
+        %category names
+        test_labels_cat = vertcat(test_labels_cat,repelem({testSet(i).Description}',[testSet(i).Count],1));
+end
+for k=1:length(test_labels_cat)  
+        if mod(k,2)==0                  %check even numbers
+            test_labels{k} = 'Not Kangaroo';    %not a kangaroo
+        else
+            test_labels{k} = 'Kangaroo';     %is a kangaroo
+        end
+end 
+%Save important variables to .mat file
+save('filelist.mat','train_list','test_list','train_labels','test_labels','classes','train_labels_cat')
+

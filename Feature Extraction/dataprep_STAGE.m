@@ -43,20 +43,29 @@ for i = 1:length(trainingImages)
   fprintf(1, 'Now reading %s\n', fullTrainImageName);
   imageArray = imread(fullTrainImageName);
   %Convert image into gray scale
+  fprintf(1, 'Now converting %s\n', fullTrainImageName, ' to grayscale');
   grayedImg = rgb2gray(imageArray);
   %perform histogram equalization on grayed image
+  fprintf(1, 'Now perform histograming on equalization on %s\n', fullTrainImageName);
   histEqImg = histeq(grayedImg);
   %display figure 
-  figure
+  %figure
   %imshow(imageArray);  % Display imageData preparation:.
-  subplot(2,2,1);imshow(imageArray);title('Original Image');
-  subplot(2,2,2);imhist(rgb2gray(imageArray));
-  subplot(2,2,3);imshow(histEqImg);title('Image after histogram equalization');
-  subplot(2,2,4);imhist(histEqImg);
-  drawnow; % Force display to update immediately.
+  %subplot(2,2,1);imshow(imageArray);title('Original Image');
+  %subplot(2,2,2);imhist(rgb2gray(imageArray));
+  %subplot(2,2,3);imshow(histEqImg);title('Image after histogram equalization');
+  %subplot(2,2,4);imhist(histEqImg);
+  %drawnow; % Force display to update immediately.
   %save training histogram equalized image into a training dataset folder
   newFullTrainImageName = strrep(fullTrainImageName, 'trainTemp', 'train');
+  fprintf(1, 'Now saving histogrammed image %s\n',' to train folder');
   imwrite(histEqImg,newFullTrainImageName);
+  %write to log file
+  header = 'Training Image Log File!';
+  fid=fopen('train.txt','w');
+  fprintf(fid, [ header '\n']);
+  fprintf(fid, '%f %f \n', newFullTrainImageName);
+  fclose(fid);
  end
 
 %extract and store testing image names and path to the list
@@ -72,15 +81,21 @@ for j = 1:length(testingImages)
   %perform histogram equalization on grayed image
   testHistEqImg = histeq(testGrayedImg);
   %display figure 
-  figure
-  %imshow(imageArray);  % Display imageData preparation:.
-  subplot(2,2,1);imshow(testImgArray);title('Original Image');
-  subplot(2,2,2);imhist(testGrayedImg);
-  subplot(2,2,3);imshow(testHistEqImg);title('Image after histogram equalization');
-  subplot(2,2,4);imhist(testHistEqImg);
-  drawnow; % Force display to update immediately.
+%   figure
+%   %imshow(imageArray);  % Display imageData preparation:.
+%   subplot(2,2,1);imshow(testImgArray);title('Original Image');
+%   subplot(2,2,2);imhist(testGrayedImg);
+%   subplot(2,2,3);imshow(testHistEqImg);title('Image after histogram equalization');
+%   subplot(2,2,4);imhist(testHistEqImg);
+%   drawnow; % Force display to update immediately.
   newFullTestImageName = strrep(fullTestImageName, 'testTemp', 'test');
   imwrite(testHistEqImg,newFullTestImageName);
+  %write to a log file
+   header = 'Training Image Log File!';
+  fid=fopen('test.txt','w');
+  fprintf(fid, [ header '\n']);
+  fprintf(fid, '%f %f \n', newFullTestImageName);
+  fclose(fid);
 end 
 %Extract training labels
 imgSets = [ imageSet(fullfile('images/Kangaroo')), ...

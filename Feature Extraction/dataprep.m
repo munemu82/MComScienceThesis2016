@@ -1,3 +1,6 @@
+%AUTHOR: Amos Munezero
+%This script is used to prepare images for feature extraction
+
 %Initial image folder setup
 trainFolder = 'images/train';
 testFolder = 'images/test';
@@ -31,7 +34,6 @@ classes = {1,2};
 %Get all the image names from training and test image folders
 
 %extract and store training image names and path to the list
-
 for i = 1:length(trainingImages)
   baseTrainImageName = trainingImages(i).name;
   fullTrainImageName = fullfile(trainFolder, baseTrainImageName);
@@ -40,7 +42,17 @@ for i = 1:length(trainingImages)
   %Display training images
   fprintf(1, 'Now reading %s\n', fullTrainImageName);
   imageArray = imread(fullTrainImageName);
-  imshow(imageArray);  % Display imageData preparation:.
+  %Convert image into gray scale
+  grayedImg = rgb2gray(imageArray);
+  %perform histogram equalization on grayed image
+  histEqImg = histeq(grayedImg);
+  %display figure 
+  figure
+  %imshow(imageArray);  % Display imageData preparation:.
+  subplot(2,2,1);imshow(imageArray);title('Original Image');
+  subplot(2,2,2);imhist(rgb2gray(imageArray));
+  subplot(2,2,3);imshow(histEqImg);title('Image after histogram equalization');
+  subplot(2,2,4);imhist(histEqImg);
   drawnow; % Force display to update immediately.
  end
 
@@ -74,9 +86,9 @@ for i = 1:size(testSet,1)
 end
 for k=1:length(test_labels_cat)  
         if mod(k,2)==0                  %check even numbers
-            test_labels{k} = 2;    %not a kangaroo
+            test_labels{k} = 'Not Kangaroo';    %not a kangaroo
         else
-            test_labels{k} = 1;     %is a kangaroo
+            test_labels{k} = 'Kangaroo';     %is a kangaroo
         end
 end 
 %Save important variables to .mat file
